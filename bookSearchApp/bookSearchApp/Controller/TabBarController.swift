@@ -12,6 +12,7 @@ class TabBarController: UITabBarController {
         super.viewDidLoad()
         customTab()
         addCenterDivider()
+        view.backgroundColor = .white
     }
 
     
@@ -43,7 +44,8 @@ class TabBarController: UITabBarController {
   
    
         appearance.configureWithTransparentBackground()
-        appearance.backgroundColor = UIColor(named: "TabBarColor")
+        appearance.backgroundColor = .white
+        
         
         
       
