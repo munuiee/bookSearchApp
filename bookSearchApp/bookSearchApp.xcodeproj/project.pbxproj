@@ -8,10 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		583315CE2EABA06500604C15 /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 583315CD2EABA06500604C15 /* SnapKit */; };
+		58C1EEE52EB228920064BA41 /* Details+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C1EEE42EB228920064BA41 /* Details+CoreDataProperties.swift */; };
+		58C1EEE62EB228920064BA41 /* Details+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58C1EEE32EB228920064BA41 /* Details+CoreDataClass.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		583315B22EAB9FCB00604C15 /* bookSearchApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = bookSearchApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		58C1EEE32EB228920064BA41 /* Details+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Details+CoreDataClass.swift"; sourceTree = "<group>"; };
+		58C1EEE42EB228920064BA41 /* Details+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Details+CoreDataProperties.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -50,6 +54,8 @@
 		583315A92EAB9FCA00604C15 = {
 			isa = PBXGroup;
 			children = (
+				58C1EEE32EB228920064BA41 /* Details+CoreDataClass.swift */,
+				58C1EEE42EB228920064BA41 /* Details+CoreDataProperties.swift */,
 				583315B42EAB9FCB00604C15 /* bookSearchApp */,
 				583315B32EAB9FCB00604C15 /* Products */,
 			);
@@ -141,6 +147,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58C1EEE52EB228920064BA41 /* Details+CoreDataProperties.swift in Sources */,
+				58C1EEE62EB228920064BA41 /* Details+CoreDataClass.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
