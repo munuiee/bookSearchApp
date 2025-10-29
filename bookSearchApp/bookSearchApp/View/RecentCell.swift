@@ -21,7 +21,8 @@ class RecentCell: UICollectionViewCell {
     func configure(with book: Book) {
         titleLabel.text = book.title
         
-        if let url = URL(string: book.thumbnail) {
+        if let thumbnail = book.thumbnail,
+           let url = URL(string: thumbnail) {
             URLSession.shared.dataTask(with: url) { data, _, _ in
                 guard let data = data else { return }
                 DispatchQueue.main.async {
