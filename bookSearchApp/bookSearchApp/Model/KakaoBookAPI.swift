@@ -1,7 +1,7 @@
 import Foundation
 
 final class KakaoBookAPI {
-    private let apiKey = "KAKAO_API_KEY"
+    private let apiKey = "85f2abad83f83deecb5e20f8ed81d5a0"
     
     func fetchBooks(query: String, completion: @escaping (Result<[Book], Error>) -> Void) {
         guard let encodeQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed),

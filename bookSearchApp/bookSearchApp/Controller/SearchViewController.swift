@@ -13,7 +13,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     private let api = KakaoBookAPI()
     private var books: [Book] = []
     private let fallbackSymbol = UIImage(systemName: "book") ?? UIImage()
-
+    private let button = UIButton()
     private var recentThumbnails: [UIImage?] = []
     private var searchLists: [String] = []
     
@@ -30,6 +30,32 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         setupCol()
         cellRegister()
         searchBar.searchTextField.addTarget(self, action: #selector(didPressReturn), for: .editingDidEndOnExit)
+        buttonCon()
+    }
+    
+    func buttonCon() {
+        view.addSubview(button)
+        button.setTitle("임시모달", for: .normal)
+        button.setTitleColor(.black, for: .normal)
+        button.snp.makeConstraints {
+            $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
+            $0.leading.equalToSuperview().inset(20)
+        }
+        button.addTarget(self, action: #selector(buttonClick), for: .touchUpInside)
+    }
+    
+    @objc func buttonClick() {
+        print("버튼 클릭됨 ㅠwㅠ")
+        let modal = DetailViewController()
+        modal.modalPresentationStyle = .pageSheet
+       
+        if let sheet = modal.sheetPresentationController {
+            sheet.detents = [.large()]
+            sheet.preferredCornerRadius = 30
+            sheet.prefersGrabberVisible = true
+        }
+        present(modal, animated: true, completion: nil)
+        
     }
     
     private func setupCol() {
@@ -49,8 +75,8 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         collectionView.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderView.identifier)
     }
     
-
-   
+    
+    
     func makeLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
             guard let section = Section(rawValue: sectionIndex) else { return nil }
@@ -69,12 +95,12 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         let itemSize = NSCollectionLayoutSize(
             widthDimension: .absolute(64),
             heightDimension: .absolute(64)
-            )
+        )
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
         
         let groupSize = NSCollectionLayoutSize(
-                  widthDimension: .absolute(64),
-                  heightDimension: .absolute(64))
+            widthDimension: .absolute(64),
+            heightDimension: .absolute(64))
         let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
@@ -104,7 +130,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(36))
         let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
         header.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: -24, bottom: 0, trailing: 16)
-
+        
         section.boundarySupplementaryItems = [header]
         return section
     }
@@ -122,7 +148,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         searchBar.barTintColor = .clear
         searchBar.backgroundColor = .clear
         searchBar.returnKeyType = .search
-
+        
         if let textField = searchBar.value(forKey: "searchField") as? UITextField {
             textField.backgroundColor = .clear
             textField.borderStyle = .none
@@ -154,7 +180,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
             $0.top.equalToSuperview().inset(100)
             $0.leading.trailing.equalToSuperview().inset(30)
         }
-
+        
     }
     
     private func doneSearch(_ query: String) {
@@ -187,7 +213,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         doneSearch(q)
     }
     
-   
+    
     
     
 }
@@ -214,8 +240,8 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         case .recent:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentCell.identifier, for: indexPath) as? RecentCell else { return UICollectionViewCell() }
             let image = (indexPath.item < recentThumbnails.count) ? recentThumbnails[indexPath.item] : nil
-                cell.setImage(image ?? UIImage())
-                return cell
+            cell.setImage(image ?? UIImage())
+            return cell
             
         case .results:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ResultsCell.identifier, for: indexPath) as! ResultsCell
@@ -231,9 +257,9 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
             background.backgroundInsets = NSDirectionalEdgeInsets(top: 0, leading: -8, bottom: 0, trailing: -8)
             cell.backgroundConfiguration = background
             return cell
-        
+            
         }
-       
+        
         
         
         
@@ -257,7 +283,7 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
                 header.configure(titleText: "검색 결과", symbolName: "archivebox.fill")
             }
         }
-       
+        
         return header
     }
     
