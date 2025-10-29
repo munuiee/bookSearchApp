@@ -2,7 +2,7 @@ import UIKit
 import Foundation
 import SnapKit
 
-class BookShelfController: UIViewController {
+class BookShelfController: UIViewController, DetailViewControllerDelegate {
     private let symbol = UIImageView()
     private let label = UILabel()
     private let deleteButton = UIButton()
@@ -12,6 +12,22 @@ class BookShelfController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         titleSet()
+        buttonSet()
+    }
+    
+    func didTapAddBook(_ book: Book) {
+        print("✨ \(book.title) 추가됨!")
+        reloadBooks()
+    }
+    
+    private func reloadBooks() {
+        
+    }
+    
+    private func showDetail(for book: Book) {
+        let detailVC = DetailViewController(book: book)
+        detailVC.delegate = self
+        present(detailVC, animated: true)
     }
     
     private func titleSet() {
@@ -32,5 +48,26 @@ class BookShelfController: UIViewController {
             $0.top.equalTo(symbol.snp.bottom).offset(10)
             $0.centerX.equalToSuperview()
         }
+    }
+    
+    private func buttonSet() {
+        view.addSubview(hStack)
+        hStack.axis =  .horizontal
+        hStack.distribution = .equalSpacing
+        hStack.spacing = 20
+        hStack.snp.makeConstraints {
+            $0.top.equalTo(label.snp.bottom).offset(20)
+            $0.leading.trailing.equalToSuperview().inset(30)
+        }
+        
+        [deleteButton, addButton].forEach { hStack.addArrangedSubview($0) }
+        deleteButton.setTitle("전체 삭제", for: .normal)
+        deleteButton.setTitleColor(.systemGray4, for: .normal)
+        deleteButton.titleLabel?.font = UIFont.systemFont(ofSize: 14)
+
+        
+        addButton.setTitle("추가하기", for: .normal)
+        addButton.setTitleColor(UIColor(named: "MainColor"), for: .normal)
+        addButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
     }
 }

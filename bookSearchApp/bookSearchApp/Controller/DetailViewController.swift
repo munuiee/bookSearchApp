@@ -5,6 +5,7 @@ import SnapKit
 final class DetailViewController: UIViewController, UISheetPresentationControllerDelegate {
     
     private let book: Book
+    weak var delegate: DetailViewControllerDelegate?
     
     private let bookTitle = UILabel()
     private let author = UILabel()
@@ -65,11 +66,8 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-
+        
         buttonSet()
-        
-
-        
         configureUI()
         apply(book)
         
@@ -78,11 +76,8 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
         
         xButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
-        
-  
-
     }
-
+    
     
     private func configureUI() {
         
@@ -101,10 +96,10 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         
         view.addSubview(price)
         price.textAlignment = .right
-        price.font = .systemFont(ofSize: 18)
+        price.font = .systemFont(ofSize: 15)
         price.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(30)
-            $0.top.equalTo(vStack.snp.bottom).offset(15)
+            $0.top.equalTo(vStack.snp.bottom).offset(10)
         }
         
         vStack.snp.makeConstraints {
@@ -122,17 +117,17 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         
         scrollView.addSubview(contentStack)
         contentStack.axis = .vertical
-        contentStack.spacing = 10
+        contentStack.spacing = 20
         contentStack.isLayoutMarginsRelativeArrangement = true
-
-        contentStack.layoutMargins = .init(top: 20, left: 20, bottom: 20, right: 20)
+        
+        contentStack.layoutMargins = .init(top: 20, left: 30, bottom: 20, right: 30)
         contentStack.snp.makeConstraints {
             $0.edges.equalTo(scrollView.contentLayoutGuide)
             $0.width.equalTo(scrollView.frameLayoutGuide)
-            }
+        }
         
         [thumbnail, contents].forEach{ contentStack.addArrangedSubview($0) }
- 
+        
         thumbnail.contentMode = .scaleAspectFit
         thumbnail.clipsToBounds = true
         thumbnail.layer.shadowOffset = CGSize(width: 4, height: 0)
@@ -148,14 +143,29 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         contentStack.setCustomSpacing(16, after: thumbnail)
         contents.numberOfLines = 0
         contents.font = .systemFont(ofSize: 14)
-    
-  
+        
+        // contents 행간
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.lineSpacing = 3
+        paragraphStyle.alignment = .left
+        
+        let contentsText = book.contents
+        let attributedString = NSMutableAttributedString(
+            string: contentsText,
+            attributes: [
+                .paragraphStyle: paragraphStyle,
+                .font: UIFont.systemFont(ofSize: 16)
+            ]
+        )
+        
+        contents.attributedText = attributedString
+        
     }
     
-  
+    
     private func buttonSet() {
-
-      
+        
+        
         buttonStack.axis = .horizontal
         buttonStack.alignment = .fill
         buttonStack.distribution = .fill
@@ -171,7 +181,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
             $0.leading.trailing.equalToSuperview().inset(30)
         }
         
-      
+        
         xButton.snp.makeConstraints {
             $0.width.height.equalTo(70)
             $0.centerY.equalTo(buttonStack)
@@ -184,7 +194,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
             $0.centerY.equalTo(buttonStack)
         }
         cartButton.addTarget(self, action: #selector(addToCartTapped), for: .touchUpInside)
-
+        
         
     }
     
@@ -197,7 +207,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         contents.text = book.contents.isEmpty ? "상세 설명이 없습니다." : book.contents
         
         if let urlStr = book.thumbnail,
-            let url = highResURL(from: urlStr) {
+           let url = highResURL(from: urlStr) {
             loadImage(from: url) { [weak self] img in self?.thumbnail.image = img }
         } else {
             thumbnail.image = UIImage(systemName: "book")
@@ -212,14 +222,14 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
             DispatchQueue.main.async { completion(img) }
         }.resume()
     }
-        
+    
     
     private func highResURL(from urlString: String) -> URL? {
         // 1) fname 쿼리에서 원본 URL 추출
         if let outer = URL(string: urlString),
            let comps = URLComponents(url: outer, resolvingAgainstBaseURL: false),
            let fname = comps.queryItems?.first(where: { $0.name == "fname" })?.value {
-
+            
             let decoded = fname.removingPercentEncoding ?? fname
             var inner = URLComponents(string: decoded)
             // 2) http로 오면 https로 승격
@@ -228,7 +238,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
             }
             if let url = inner?.url { return url }
         }
-
+        
         // 3) 리사이즈 토큰 제거 + http→https 방어
         var cleaned = urlString.replacingOccurrences(of: "C120x174", with: "")
         if cleaned.hasPrefix("http://") {
@@ -236,12 +246,22 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
         return URL(string: cleaned)
     }
-
-
-
+    
+    
+    
     
     @objc private func closeTapped() { dismiss(animated: true) }
-    @objc private func addToCartTapped() { print("장바구니 담기: \(book.title)") }
-
- 
+    @objc private func addToCartTapped() {
+        let title = book.title
+        let author = book.authors.joined(separator: ", ")
+        let price = String(book.price)
+        
+        CoreDataManager.shared.createData(title: title, author: author, price: price)
+        
+        
+        delegate?.didTapAddBook(book)
+        dismiss(animated: true)
+    }
+    
+    
 }
