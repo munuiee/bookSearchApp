@@ -28,7 +28,7 @@ struct Book: Codable {
     let publisher: String
     let salePrice: Int?
     let status: String
-    let thumbnail: String
+    let thumbnail: String?
     let title: String
     let translators: [String]
     let url: String

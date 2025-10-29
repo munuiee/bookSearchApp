@@ -30,33 +30,8 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         setupCol()
         cellRegister()
         searchBar.searchTextField.addTarget(self, action: #selector(didPressReturn), for: .editingDidEndOnExit)
-        buttonCon()
     }
     
-    func buttonCon() {
-        view.addSubview(button)
-        button.setTitle("임시모달", for: .normal)
-        button.setTitleColor(.black, for: .normal)
-        button.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(20)
-            $0.leading.equalToSuperview().inset(20)
-        }
-        button.addTarget(self, action: #selector(buttonClick), for: .touchUpInside)
-    }
-    
-    @objc func buttonClick() {
-        print("버튼 클릭됨 ㅠwㅠ")
-        let modal = DetailViewController()
-        modal.modalPresentationStyle = .pageSheet
-       
-        if let sheet = modal.sheetPresentationController {
-            sheet.detents = [.large()]
-            sheet.preferredCornerRadius = 30
-            sheet.prefersGrabberVisible = true
-        }
-        present(modal, animated: true, completion: nil)
-        
-    }
     
     private func setupCol() {
         view.addSubview(collectionView)
@@ -213,7 +188,18 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         doneSearch(q)
     }
     
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let selected = books[indexPath.item]
+        let vc = DetailViewController(book: selected)
+        vc.modalPresentationStyle = .pageSheet
+        
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.medium(), .large()]
+            sheet.preferredCornerRadius = 30
+            sheet.prefersGrabberVisible = true
+        }
+        present(vc, animated: true)
+    }
     
     
 }
