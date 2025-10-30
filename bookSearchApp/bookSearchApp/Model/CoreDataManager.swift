@@ -46,7 +46,7 @@ class CoreDataManager {
         storeData.setValue(title, forKey: "title")
         storeData.setValue(author, forKey: "author")
         storeData.setValue(price, forKey: "price")
-      //  storeData.setValue(Date(), forKey: "createdAt")
+        storeData.setValue(Date(), forKey: "createdAt")
 
         
         do {
@@ -74,12 +74,12 @@ class CoreDataManager {
         }
     }
     
-    // U
+   
     func getInformation() -> [Details] {
         let context = persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<Details> = Details.fetchRequest()
 
-        // ✅ 엔티티에 'createdAt' 속성이 있을 때만 정렬 적용 (없으면 크래시 방지)
+        // 저장된 책 최신순으로 정렬
         let entity = Details.entity()
         if entity.attributesByName.keys.contains("createdAt") {
             fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
@@ -101,27 +101,6 @@ class CoreDataManager {
     }
 
     
-    // D
-    func deleteData(title: String) {
-        let fetchRequest = Details.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "title == %@", title)
-        
-        do {
-            let result = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            
-            for data in result as [NSManagedObject] {
-                self.persistentContainer.viewContext.delete(data)
-            }
-            
-            try self.persistentContainer.viewContext.save()
-            print("데이터 삭제 성공")
-        } catch {
-            print("데이터 삭제 실패")
-        }
-   
-    }
-    
-    
     // 전체삭제 로직
     func deleteAllDetails() {
         let context = persistentContainer.viewContext
@@ -138,4 +117,18 @@ class CoreDataManager {
 
  
  
+}
+
+// 스와이프 삭제
+extension CoreDataManager {
+    func delete(details: Details) {
+        let ctx = persistentContainer.viewContext
+        ctx.delete(details)
+        do {
+            try ctx.save()
+            print("💫 스와이프 삭제 성공")
+        } catch {
+            print("☄️ 스와이프 삭제 실패: \(error)")
+        }
+    }
 }

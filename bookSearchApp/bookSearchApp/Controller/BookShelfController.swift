@@ -101,7 +101,7 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
     
     
     @objc private func deleteButton(_ sender: UIButton) {
-        self.coreDataManager.deleteAllDetails() 
+        
 
         guard !storeInfo.isEmpty else { return }
         
@@ -109,6 +109,7 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
         alert.addAction(UIAlertAction(title: "취소", style: .cancel, handler: nil))
         alert.addAction(UIAlertAction(title: "삭제", style: .destructive) {[weak self] _ in
             guard let self = self else { return }
+            self.coreDataManager.deleteAllDetails()
             self.storeInfo.removeAll()
             self.tableView.reloadData()
         })
@@ -119,12 +120,11 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
         let deleteAction = UIContextualAction(style: .destructive, title: nil) {
             [weak self](action, view, completion) in
             guard let self = self else { return }
-            
             let info = self.storeInfo[indexPath.row]
             
-            CoreDataManager.shared.deleteData(title: info.title ?? "")
-            self.storeInfo.remove(at: indexPath.row)
+            CoreDataManager.shared.delete(details: info)
             
+            self.storeInfo.remove(at: indexPath.row)
             tableView.deleteRows(at: [indexPath], with: .automatic)
             completion(true)
         }
