@@ -2,20 +2,30 @@
 import UIKit
 import SnapKit
 
-private enum Section: Int, CaseIterable {
+enum Section: Int, CaseIterable {
     case recent
     case results
 }
 
+
 class SearchViewController: UIViewController, UISearchBarDelegate {
     
+    struct SearchBook: Hashable {
+        let title: String
+        let author: String
+        let price: String
+        let thumbnail: String?
+    }
+
     private let searchBar = UISearchBar()
     private let api = KakaoBookAPI()
     private var books: [Book] = []
     private let fallbackSymbol = UIImage(systemName: "book") ?? UIImage()
     private let button = UIButton()
-    private var recentThumbnails: [UIImage?] = []
+    private var recentThumbnails: [String] = []
     private var searchLists: [String] = []
+    // 화면에 보여줄 섹션 순서표
+    private var visibleSections: [Section] = []
     
     private lazy var collectionView: UICollectionView = {
         let collection = UICollectionView(frame: .zero, collectionViewLayout: makeLayout())
@@ -30,6 +40,8 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         setupCol()
         cellRegister()
         searchBar.searchTextField.addTarget(self, action: #selector(didPressReturn), for: .editingDidEndOnExit)
+        
+        rebuildVisibleSections()
     }
     
     
@@ -50,16 +62,25 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         collectionView.register(HeaderView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: HeaderView.identifier)
     }
     
+    // 보여줄 섹션 결정 함수
+    private func rebuildVisibleSections() {
+        var sections: [Section] = [.results] // resultsSection만 나오는 상태
+        if !recentThumbnails.isEmpty {
+                sections.insert(.recent, at: 0)
+            }
+        visibleSections = sections
+        collectionView.reloadData()
+    }
     
     
     func makeLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout { [weak self] sectionIndex, _ in
-            guard let section = Section(rawValue: sectionIndex) else { return nil }
-            switch section {
+            guard let self = self, sectionIndex < self.visibleSections.count else { return nil }
+            switch self.visibleSections[sectionIndex] {
             case .recent:
-                return self?.recentSection()
+                return self.recentSection()
             case .results:
-                return self?.resultsSection()
+                return self.resultsSection()
             }
         }
     }
@@ -136,8 +157,6 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                 searchIcon.image = searchIcon.image?.withRenderingMode(.alwaysTemplate)
             }
             
-            
-            
             let underline = UIView()
             underline.translatesAutoresizingMaskIntoConstraints = false
             underline.backgroundColor = .systemGray3
@@ -166,7 +185,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
                 switch result {
                 case .success(let books):
                     self.books = books
-                    self.collectionView.reloadSections(IndexSet(integer: Section.results.rawValue))
+                    self.rebuildVisibleSections()
                 case .failure(let error):
                     print("Error fetching books: \(error)")
                 }
@@ -182,11 +201,13 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         doneSearch(q)
     }
     
+    
     @objc private func didPressReturn() {
         guard let q = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !q.isEmpty else { return }
         doneSearch(q)
     }
+    
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selected = books[indexPath.item]
@@ -198,7 +219,22 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
             sheet.preferredCornerRadius = 30
             sheet.prefersGrabberVisible = true
         }
-        present(vc, animated: true)
+        present(vc, animated: true) { [weak self] in
+            guard let self = self else { return }
+            if let url = selected.thumbnailURL {
+                // 중복 제거
+                self.recentThumbnails.removeAll { $0 == url}
+                // 썸네일 맨 앞 추가
+                self.recentThumbnails.insert(url, at: 0)
+                
+                // 10개 제한
+                if self.recentThumbnails.count > 10 {
+                    self.recentThumbnails = Array(self.recentThumbnails.prefix(10))
+                }
+                
+            }
+            self.rebuildVisibleSections()
+        }
     }
     
     
@@ -206,28 +242,28 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
 
 extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        Section.allCases.count
+        return visibleSections.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let sec = Section(rawValue: section) else { return 0 }
-        switch sec {
-        case .recent:
-            return recentThumbnails.count
-        case .results:
-            return books.count
+        // guard let sec = Section(rawValue: section) else { return 0 }
+        switch visibleSections[section] {
+        case .recent: return recentThumbnails.count
+        case .results: return books.count
         }
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let sec = Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
+      //  guard let sec = Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
         
-        switch sec {
+        switch visibleSections[indexPath.section] {
         case .recent:
-            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentCell.identifier, for: indexPath) as? RecentCell else { return UICollectionViewCell() }
-            let image = (indexPath.item < recentThumbnails.count) ? recentThumbnails[indexPath.item] : nil
-            cell.setImage(image ?? UIImage())
-            return cell
+            guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentCell.identifier, for: indexPath) as? RecentCell else {
+                    return UICollectionViewCell()
+                }
+                let urlString = recentThumbnails[indexPath.item]
+                cell.setImageURL(urlString) 
+                return cell
             
         case .results:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ResultsCell.identifier, for: indexPath) as! ResultsCell
@@ -257,22 +293,20 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
             return UICollectionReusableView()
         }
         
-        guard let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderView.identifier, for: indexPath) as? HeaderView else {
-            return UICollectionReusableView()
-        }
+        let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderView.identifier, for: indexPath) as! HeaderView
         
-        if let sec = Section(rawValue: indexPath.section) {
-            switch sec {
+        switch visibleSections[indexPath.section] {
             case .recent:
                 header.configure(titleText: "최근 본 책", symbolName: "text.book.closed.fill")
             case .results:
                 header.configure(titleText: "검색 결과", symbolName: "archivebox.fill")
             }
-        }
-        
-        return header
+            return header
     }
     
     
 }
 
+extension Book {
+    var thumbnailURL: String? { thumbnail }
+}

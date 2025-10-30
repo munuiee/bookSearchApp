@@ -40,11 +40,14 @@ class RecentCell: UICollectionViewCell {
         bookImage.contentMode = .scaleAspectFill
         bookImage.clipsToBounds = true
         bookImage.layer.borderWidth = 1
+        bookImage.layer.cornerRadius = 32
         bookImage.layer.borderColor = UIColor.systemGray5.cgColor
         
         bookImage.translatesAutoresizingMaskIntoConstraints = false
         bookImage.snp.makeConstraints {
-            $0.leading.equalToSuperview().inset(40)
+            $0.leading.equalToSuperview().inset(20)
+            $0.width.height.equalTo(64)
+            $0.top.equalToSuperview().offset(15)
             
         }
     }
@@ -52,4 +55,13 @@ class RecentCell: UICollectionViewCell {
     func setImage(_ image: UIImage?) {
         bookImage.image = image
     }
+    
+    func setImageURL(_ urlString: String?) {
+        bookImage.image = UIImage(systemName: "book") // fallback
+          guard let s = urlString, let url = URL(string: s) else { return }
+          URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
+              guard let self = self, let data = data, let img = UIImage(data: data) else { return }
+              DispatchQueue.main.async { self.bookImage.image = img }
+          }.resume()
+      }
 }

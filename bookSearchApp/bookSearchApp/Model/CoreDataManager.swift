@@ -119,8 +119,9 @@ class CoreDataManager {
  
 }
 
-// 스와이프 삭제
+
 extension CoreDataManager {
+    // 스와이프 삭제
     func delete(details: Details) {
         let ctx = persistentContainer.viewContext
         ctx.delete(details)
@@ -131,4 +132,5 @@ extension CoreDataManager {
             print("☄️ 스와이프 삭제 실패: \(error)")
         }
     }
+   
 }
