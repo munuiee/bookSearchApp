@@ -76,6 +76,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
         
         xButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
+        
     }
     
     
@@ -202,8 +203,18 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
     private func apply(_ book: Book) {
         bookTitle.text = book.title
         author.text = book.authors.joined(separator: ", ")
-        let priceValue = book.salePrice ?? book.price
-        price.text = "\(priceValue)원"
+        let priceValue = book.salePrice ?? book.price 
+
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal // 천 단위 콤마 추가
+        formatter.maximumFractionDigits = 0 // 소수점 제거
+
+        if let formatted = formatter.string(from: NSNumber(value: priceValue)) {
+            price.text = "\(formatted)원"
+        } else {
+            price.text = "0원"
+        }
+
         contents.text = book.contents.isEmpty ? "상세 설명이 없습니다." : book.contents
         
         if let urlStr = book.thumbnail,

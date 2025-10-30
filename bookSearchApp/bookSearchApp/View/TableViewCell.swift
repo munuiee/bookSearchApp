@@ -1,25 +1,28 @@
+
 import Foundation
 import UIKit
 import SnapKit
 
-class ResultsCell: UICollectionViewCell {
-    static let identifier = "ResultsCell"
+class TableViewCell: UITableViewCell {
+    static let identifier = "TableViewCell"
+    
     private let title = UILabel()
     private let author = UILabel()
     private let price = UILabel()
     private let hStack = UIStackView()
     private let spacer = UIView()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-        configureUI()
-    }
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        cellSet()
+        
+     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
     
-    private func configureUI() {
+    func cellSet() {
         contentView.addSubview(hStack)
         [title, author, spacer, price].forEach { hStack.addArrangedSubview($0) }
         
@@ -54,31 +57,21 @@ class ResultsCell: UICollectionViewCell {
             $0.edges.equalToSuperview()
         }
         
-        
-        
     }
     
-    
-    
-    func configure(_ book: Book) {
-        title.text = book.title
-        author.text = book.authors.joined(separator: ", ")
-        let amount = NSNumber(value: book.salePrice ?? book.price)
-        if let formatted = NumberFormatter.currencyKR.string(from: amount) {
-                price.text = "\(formatted)원" 
-            } else {
-                price.text = "0원"
-            }
+    func configure(with detail: Details) {
+        title.text = detail.title ?? "no title"
+        author.text = detail.author ?? "no author"
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal  // 천 단위 콤마
+
+        if let priceString = detail.price,        // "10000" 같은 문자열
+           let priceValue = Int(priceString),     // Int로 변환 성공 시
+           let formatted = formatter.string(from: NSNumber(value: priceValue)) {
+            price.text = "\(formatted)원"
+        } else {
+            price.text = "0원"
+        }
+        
     }
 }
-
-private extension NumberFormatter {
-    static let currencyKR: NumberFormatter = {
-        let f = NumberFormatter()
-        f.numberStyle = .decimal
-        f.maximumFractionDigits = 0
-        f.groupingSeparator = ","
-        return f
-    }()
-}
-
