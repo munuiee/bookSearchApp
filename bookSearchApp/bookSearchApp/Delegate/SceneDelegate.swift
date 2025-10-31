@@ -1,10 +1,3 @@
-//
-//  SceneDelegate.swift
-//  bookSearchApp
-//
-//  Created by jyeee on 10/24/25.
-//
-
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {

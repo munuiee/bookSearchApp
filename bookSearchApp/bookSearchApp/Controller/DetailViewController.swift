@@ -1,3 +1,5 @@
+// 책 상세 모달 페이지
+
 import UIKit
 import Foundation
 import SnapKit
@@ -12,7 +14,12 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
     private let price = UILabel()
     private let thumbnail = UIImageView()
     private let contents = UILabel()
+    private let vStack = UIStackView()
+    private let buttonStack = UIStackView()
+    private let scrollView = UIScrollView()
+    private let contentStack = UIStackView()
     
+    /* ----- UI: 버튼 ----- */
     private let xButton: UIButton = {
         var config = UIButton.Configuration.filled()
         config.title = "X"
@@ -22,7 +29,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         config.cornerStyle = .capsule
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
             var outgoing = incoming
-            outgoing.font = UIFont.systemFont(ofSize: 25) // 👈 원하는 크기와 굵기
+            outgoing.font = UIFont.systemFont(ofSize: 25)
             return outgoing
         }
         let xButton = UIButton(configuration: config)
@@ -39,7 +46,6 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         config.baseBackgroundColor = UIColor(named: "MainColor")
         config.baseForegroundColor = .white
         config.background.cornerRadius = 30
-        
         config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
             var outgoing = incoming
             outgoing.font = UIFont.systemFont(ofSize: 24, weight: .medium)
@@ -49,10 +55,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         return cartButton
     }()
     
-    private let vStack = UIStackView()
-    private let buttonStack = UIStackView()
-    private let scrollView = UIScrollView()
-    private let contentStack = UIStackView()
+   
     
     init(book: Book) {
         self.book = book
@@ -62,6 +65,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -80,6 +84,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
     }
     
     
+    /* ----- UI: 화면 ----- */
     private func configureUI() {
         
         view.addSubview(vStack)
@@ -109,6 +114,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
         
         
+        // 책 이미지, 컨텐츠 스크롤뷰
         view.addSubview(scrollView)
         scrollView.snp.makeConstraints {
             $0.top.equalTo(price.snp.bottom).offset(20)
@@ -128,7 +134,6 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
         
         [thumbnail, contents].forEach{ contentStack.addArrangedSubview($0) }
-        
         thumbnail.contentMode = .scaleAspectFit
         thumbnail.clipsToBounds = true
         thumbnail.layer.shadowOffset = CGSize(width: 4, height: 0)
@@ -138,7 +143,6 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
             $0.width.equalTo(200)
             $0.height.equalTo(350)
             $0.centerX.equalToSuperview()
-            //$0.top.equalTo(price.snp.bottom).offset(50)
         }
         thumbnail.setContentHuggingPriority(.defaultLow, for: .vertical)
         contentStack.setCustomSpacing(16, after: thumbnail)
@@ -163,10 +167,8 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         
     }
     
-    
+    /* ----- UI: 버튼 ----- */
     private func buttonSet() {
-        
-        
         buttonStack.axis = .horizontal
         buttonStack.alignment = .fill
         buttonStack.distribution = .fill
@@ -195,16 +197,16 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
             $0.centerY.equalTo(buttonStack)
         }
         cartButton.addTarget(self, action: #selector(addToCartTapped), for: .touchUpInside)
-        
-        
     }
     
     
+    /* ----- API 불러오기 ----- */
     private func apply(_ book: Book) {
         bookTitle.text = book.title
         author.text = book.authors.joined(separator: ", ")
         let priceValue = book.salePrice ?? book.price 
 
+        // 숫자를 문자열로 변환
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal // 천 단위 콤마 추가
         formatter.maximumFractionDigits = 0 // 소수점 제거
@@ -216,6 +218,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
 
         contents.text = book.contents.isEmpty ? "상세 설명이 없습니다." : book.contents
+        
         
         if let urlStr = book.thumbnail,
            let url = highResURL(from: urlStr) {
@@ -235,22 +238,20 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
     }
     
     
+    // 고해상도 이미지로 변환
     private func highResURL(from urlString: String) -> URL? {
-        // 1) fname 쿼리에서 원본 URL 추출
         if let outer = URL(string: urlString),
            let comps = URLComponents(url: outer, resolvingAgainstBaseURL: false),
            let fname = comps.queryItems?.first(where: { $0.name == "fname" })?.value {
             
             let decoded = fname.removingPercentEncoding ?? fname
             var inner = URLComponents(string: decoded)
-            // 2) http로 오면 https로 승격
             if inner?.scheme?.lowercased() == "http" {
                 inner?.scheme = "https"
             }
             if let url = inner?.url { return url }
         }
         
-        // 3) 리사이즈 토큰 제거 + http→https 방어
         var cleaned = urlString.replacingOccurrences(of: "C120x174", with: "")
         if cleaned.hasPrefix("http://") {
             cleaned = "https://" + cleaned.dropFirst("http://".count)

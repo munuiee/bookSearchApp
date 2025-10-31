@@ -1,3 +1,4 @@
+// 최근 본 책 셀
 
 import Foundation
 import UIKit
@@ -48,7 +49,6 @@ class RecentCell: UICollectionViewCell {
             $0.leading.equalToSuperview().inset(20)
             $0.width.height.equalTo(64)
             $0.top.equalToSuperview().offset(15)
-            
         }
     }
     
@@ -57,7 +57,7 @@ class RecentCell: UICollectionViewCell {
     }
     
     func setImageURL(_ urlString: String?) {
-        bookImage.image = UIImage(systemName: "book") // fallback
+        bookImage.image = UIImage(systemName: "book")
           guard let s = urlString, let url = URL(string: s) else { return }
           URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
               guard let self = self, let data = data, let img = UIImage(data: data) else { return }

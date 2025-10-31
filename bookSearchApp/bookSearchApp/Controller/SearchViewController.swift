@@ -1,3 +1,4 @@
+// '책 검색' 페이지
 
 import UIKit
 import SnapKit
@@ -45,17 +46,18 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     
+    /* ----- ☄️ 컬렉션뷰 ----- */
     private func setupCol() {
         view.addSubview(collectionView)
         collectionView.delegate = self
         collectionView.dataSource = self
-        
         collectionView.snp.makeConstraints {
             $0.top.equalTo(searchBar.snp.bottom).offset(16)
             $0.leading.trailing.bottom.equalToSuperview()
         }
     }
     
+    // 등록
     func cellRegister() {
         collectionView.register(RecentCell.self, forCellWithReuseIdentifier: RecentCell.identifier)
         collectionView.register(ResultsCell.self, forCellWithReuseIdentifier: ResultsCell.identifier)
@@ -85,7 +87,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         }
     }
     
-    // Recent Section
+    // 최근 본 책 섹션
     private func recentSection() -> NSCollectionLayoutSection {
         
         let itemSize = NSCollectionLayoutSize(
@@ -101,7 +103,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         let section = NSCollectionLayoutSection(group: group)
         section.orthogonalScrollingBehavior = .continuous
         section.interGroupSpacing = 12
-        section.contentInsets = .init(top: 8, leading: 16, bottom: 16, trailing: 16)
+        section.contentInsets = .init(top: 8, leading: 16, bottom: 16, trailing: 40)
         
         // 헤더
         let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(36))
@@ -111,6 +113,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         return section
     }
     
+    // 검색 결과 섹션
     private func resultsSection() -> NSCollectionLayoutSection {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(50))
         let item = NSCollectionLayoutItem(layoutSize: itemSize)
@@ -131,9 +134,10 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         return section
     }
     
+    /* ----- 검색 바 ----- */
+    // UI
     private func searchSet() {
         searchBar.delegate = self
-        
         [searchBar]
             .forEach{ view.addSubview($0) }
         
@@ -177,6 +181,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         
     }
     
+    // 검색 실행
     private func doneSearch(_ query: String) {
         print("🚀 querying:", query)
         api.fetchBooks(query: query) { [weak self] result in
@@ -193,6 +198,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         }
     }
     
+    // 검색버튼 클릭 시에 호출
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
         guard let q = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !q.isEmpty else { return }
@@ -246,7 +252,6 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // guard let sec = Section(rawValue: section) else { return 0 }
         switch visibleSections[section] {
         case .recent: return recentThumbnails.count
         case .results: return books.count
@@ -254,7 +259,6 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-      //  guard let sec = Section(rawValue: indexPath.section) else { return UICollectionViewCell() }
         
         switch visibleSections[indexPath.section] {
         case .recent:
@@ -281,10 +285,6 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
             return cell
             
         }
-        
-        
-        
-        
         
     }
     

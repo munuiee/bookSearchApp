@@ -1,3 +1,5 @@
+// 탭바 페이지
+
 import UIKit
 import Foundation
 import SnapKit
@@ -17,7 +19,6 @@ class TabBarController: UITabBarController {
 
     
     private func customTab() {
-        
         searchVC.tabBarItem = UITabBarItem(
             title: "책 찾기",
             image: UIImage(systemName: "house"),
@@ -41,14 +42,10 @@ class TabBarController: UITabBarController {
         
         viewControllers = [searchNav, shelfNav]
 
-  
-   
         appearance.configureWithTransparentBackground()
         appearance.backgroundColor = .white
-        
-        
-        
-      
+ 
+        // 선택 상태 색상 지정
         let normal = appearance.stackedLayoutAppearance.normal
         normal.iconColor = .black
         normal.titleTextAttributes = [ .foregroundColor: UIColor.black ]
@@ -58,6 +55,7 @@ class TabBarController: UITabBarController {
         selected.iconColor = UIColor(named: "MainColor")
         selected.titleTextAttributes = [.foregroundColor: UIColor(named: "MainColor") ?? .main]
         
+        // Appearance 적용
         tabBar.standardAppearance = appearance
         if #available(iOS 15.0, *) {
             tabBar.scrollEdgeAppearance = appearance
@@ -65,6 +63,9 @@ class TabBarController: UITabBarController {
        
     }
     
+    
+    
+    // 탭바 구분선
     private func addCenterDivider() {
         let divider = UIView()
         divider.backgroundColor = .systemGray3
@@ -75,9 +76,9 @@ class TabBarController: UITabBarController {
         
         NSLayoutConstraint.activate([
               divider.centerXAnchor.constraint(equalTo: tabBar.centerXAnchor),
-              divider.centerYAnchor.constraint(equalTo: tabBar.centerYAnchor, constant: -12), // 살짝 위로
-              divider.widthAnchor.constraint(equalToConstant: 1),   // 두께
-              divider.heightAnchor.constraint(equalToConstant: 40)  // 길이 (원하는 높이로)
+              divider.centerYAnchor.constraint(equalTo: tabBar.centerYAnchor, constant: -12),
+              divider.widthAnchor.constraint(equalToConstant: 1),
+              divider.heightAnchor.constraint(equalToConstant: 40)
           ])
 
           divider.layer.cornerRadius = 0.5

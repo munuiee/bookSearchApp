@@ -1,9 +1,3 @@
-//
-//  CoreDataManager.swift
-//  bookSearchApp
-//
-//  Created by jyeee on 10/29/25.
-//
 
 import Foundation
 import CoreData
@@ -12,31 +6,30 @@ class CoreDataManager {
     static let shared = CoreDataManager()
     private init() {}
     
-
-       lazy var persistentContainer: NSPersistentContainer = {
-
-           let container = NSPersistentContainer(name: "BookSearchApp")
-           container.loadPersistentStores(completionHandler: { (storeDescription, error) in
-               if let error = error as NSError? {
-                   fatalError("Unresolved error \(error), \(error.userInfo)")
-               }
-           })
-           return container
-       }()
-       func saveContext () {
-           let context = persistentContainer.viewContext
-           if context.hasChanges {
-               do {
-                   try context.save()
-               } catch {
-                   let nserror = error as NSError
-                   fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
-               }
-           }
-       }
-
-
-   
+    
+    lazy var persistentContainer: NSPersistentContainer = {
+        let container = NSPersistentContainer(name: "BookSearchApp")
+        container.loadPersistentStores(completionHandler: { (storeDescription, error) in
+            if let error = error as NSError? {
+                fatalError("Unresolved error \(error), \(error.userInfo)")
+            }
+        })
+        return container
+    }()
+    func saveContext () {
+        let context = persistentContainer.viewContext
+        if context.hasChanges {
+            do {
+                try context.save()
+            } catch {
+                let nserror = error as NSError
+                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+            }
+        }
+    }
+    
+    
+    
     // C
     func createData(title: String, author: String, price: String) {
         guard let entity = NSEntityDescription.entity(forEntityName: "Details", in: self.persistentContainer.viewContext) else { return }
@@ -47,7 +40,7 @@ class CoreDataManager {
         storeData.setValue(author, forKey: "author")
         storeData.setValue(price, forKey: "price")
         storeData.setValue(Date(), forKey: "createdAt")
-
+        
         
         do {
             try self.persistentContainer.viewContext.save()
@@ -74,20 +67,20 @@ class CoreDataManager {
         }
     }
     
-   
+    
     func getInformation() -> [Details] {
         let context = persistentContainer.viewContext
         let fetchRequest: NSFetchRequest<Details> = Details.fetchRequest()
-
+        
         // 저장된 책 최신순으로 정렬
         let entity = Details.entity()
         if entity.attributesByName.keys.contains("createdAt") {
             fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         }
-
+        
         do {
             let list = try context.fetch(fetchRequest)
-
+            
             // ✅ 정렬을 못 걸었을 때(= createdAt 없음)만 임시 역순으로 보여주기
             if fetchRequest.sortDescriptors?.isEmpty ?? true {
                 return Array(list.reversed())
@@ -99,9 +92,10 @@ class CoreDataManager {
             return []
         }
     }
-
     
-    // 전체삭제 로직
+    /* ----- D ----- */
+    
+    // 전체 삭제
     func deleteAllDetails() {
         let context = persistentContainer.viewContext
         let request: NSFetchRequest<Details> = Details.fetchRequest()
@@ -114,14 +108,13 @@ class CoreDataManager {
             print("❌ 전체 삭제 실패: \(error)")
         }
     }
-
- 
- 
+    
+    
+    
 }
 
-
+// 스와이프 삭제
 extension CoreDataManager {
-    // 스와이프 삭제
     func delete(details: Details) {
         let ctx = persistentContainer.viewContext
         ctx.delete(details)
@@ -132,5 +125,5 @@ extension CoreDataManager {
             print("☄️ 스와이프 삭제 실패: \(error)")
         }
     }
-   
+    
 }

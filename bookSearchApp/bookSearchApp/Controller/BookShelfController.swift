@@ -1,3 +1,5 @@
+// '내 책장' 페이지
+
 import UIKit
 import Foundation
 import SnapKit
@@ -27,7 +29,6 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
     }
     
     func didTapAddBook(_ book: Book) {
-        print("✨ \(book.title) 추가됨!")
         reloadBooks()
     }
     
@@ -38,12 +39,14 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
         }
     }
     
+    // 모달 열기
     private func showDetail(for book: Book) {
         let detailVC = DetailViewController(book: book)
         detailVC.delegate = self
         present(detailVC, animated: true)
     }
     
+    /* ----- UI: 타이틀 ----- */
     private func titleSet() {
         [symbol, label]
             .forEach { view.addSubview($0)}
@@ -64,6 +67,7 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
         }
     }
     
+    /* ----- UI: 버튼 ----- */
     private func buttonSet() {
         view.addSubview(hStack)
         hStack.axis =  .horizontal
@@ -86,6 +90,7 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
         addButton.titleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .semibold)
     }
     
+    /* ----- UI: 테이블 ----- */
     private func tableSet() {
         view.addSubview(tableView)
         tableView.delegate = self
@@ -100,9 +105,8 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
     }
     
     
+    /* ----- 전체삭제 ----- */
     @objc private func deleteButton(_ sender: UIButton) {
-        
-
         guard !storeInfo.isEmpty else { return }
         
         let alert = UIAlertController(title: "전체 삭제", message: "모든 항목을 삭제할까요?", preferredStyle: .alert)
@@ -137,6 +141,8 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
     
 
 }
+
+
 
 extension BookShelfController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

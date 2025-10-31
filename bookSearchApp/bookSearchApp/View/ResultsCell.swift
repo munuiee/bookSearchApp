@@ -1,3 +1,5 @@
+/// 검색 결과 셀
+
 import Foundation
 import UIKit
 import SnapKit

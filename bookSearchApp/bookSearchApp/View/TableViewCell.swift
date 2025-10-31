@@ -1,3 +1,4 @@
+// '내 책장' 셀
 
 import Foundation
 import UIKit
@@ -65,8 +66,8 @@ class TableViewCell: UITableViewCell {
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal  // 천 단위 콤마
 
-        if let priceString = detail.price,        // "10000" 같은 문자열
-           let priceValue = Int(priceString),     // Int로 변환 성공 시
+        if let priceString = detail.price,
+           let priceValue = Int(priceString),     
            let formatted = formatter.string(from: NSNumber(value: priceValue)) {
             price.text = "\(formatted)원"
         } else {
