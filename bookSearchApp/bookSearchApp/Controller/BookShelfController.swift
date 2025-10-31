@@ -30,6 +30,7 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
     
     func didTapAddBook(_ book: Book) {
         reloadBooks()
+
     }
     
     private func reloadBooks() {
@@ -102,6 +103,7 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
             $0.top.equalTo(hStack.snp.bottom).offset(20)
             $0.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-20) 
         }
+        
     }
     
     
@@ -137,6 +139,10 @@ class BookShelfController: UIViewController, DetailViewControllerDelegate {
         let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
         configuration.performsFirstActionWithFullSwipe = true
         return configuration
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50
     }
     
 

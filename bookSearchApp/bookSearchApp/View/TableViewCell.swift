@@ -17,6 +17,7 @@ class TableViewCell: UITableViewCell {
          super.init(style: style, reuseIdentifier: reuseIdentifier)
         cellSet()
         
+ 
      }
     
     required init?(coder: NSCoder) {
@@ -51,7 +52,7 @@ class TableViewCell: UITableViewCell {
         hStack.spacing = 8
         hStack.alignment = .center
         hStack.distribution = .fill
-        
+   
         
         hStack.snp.makeConstraints {
             $0.centerY.equalToSuperview()

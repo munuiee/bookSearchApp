@@ -17,7 +17,7 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         let price: String
         let thumbnail: String?
     }
-
+    
     private let searchBar = UISearchBar()
     private let api = KakaoBookAPI()
     private var books: [Book] = []
@@ -34,14 +34,14 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         return collection
     }()
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
         searchSet()
         setupCol()
         cellRegister()
-        searchBar.searchTextField.addTarget(self, action: #selector(didPressReturn), for: .editingDidEndOnExit)
-        
         rebuildVisibleSections()
     }
     
@@ -68,8 +68,8 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     private func rebuildVisibleSections() {
         var sections: [Section] = [.results] // resultsSection만 나오는 상태
         if !recentThumbnails.isEmpty {
-                sections.insert(.recent, at: 0)
-            }
+            sections.insert(.recent, at: 0)
+        }
         visibleSections = sections
         collectionView.reloadData()
     }
@@ -143,34 +143,31 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
         
         searchBar.placeholder = "책 검색하기"
         searchBar.searchBarStyle = .minimal
-        searchBar.backgroundImage = UIImage()
-        searchBar.isTranslucent = true
         searchBar.barTintColor = .clear
         searchBar.backgroundColor = .clear
         searchBar.returnKeyType = .search
         
-        if let textField = searchBar.value(forKey: "searchField") as? UITextField {
-            textField.backgroundColor = .clear
-            textField.borderStyle = .none
-            textField.layer.cornerRadius = 0
-            textField.layer.masksToBounds = true
-            textField.placeholder = "책 검색하기"
-            
-            if let searchIcon = textField.leftView as? UIImageView {
-                searchIcon.tintColor = UIColor(named: "MainColor")
-                searchIcon.image = searchIcon.image?.withRenderingMode(.alwaysTemplate)
-            }
-            
-            let underline = UIView()
-            underline.translatesAutoresizingMaskIntoConstraints = false
-            underline.backgroundColor = .systemGray3
-            textField.addSubview(underline)
-            
-            underline.snp.makeConstraints {
-                $0.leading.trailing.bottom.equalToSuperview()
-                $0.height.equalTo(1)
-            }
+        let textField = searchBar.searchTextField
+        textField.backgroundColor = .clear
+        textField.borderStyle = .none
+        textField.layer.cornerRadius = 0
+        textField.layer.masksToBounds = true
+        
+        if let searchIcon = textField.leftView as? UIImageView {
+            searchIcon.tintColor = UIColor(named: "MainColor")
+            searchIcon.image = searchIcon.image?.withRenderingMode(.alwaysTemplate)
         }
+        
+        let underline = UIView()
+        underline.translatesAutoresizingMaskIntoConstraints = false
+        underline.backgroundColor = .systemGray3
+        textField.addSubview(underline)
+        
+        underline.snp.makeConstraints {
+            $0.leading.trailing.bottom.equalToSuperview()
+            $0.height.equalTo(1)
+        }
+        
         
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchBar.snp.makeConstraints {
@@ -208,17 +205,14 @@ class SearchViewController: UIViewController, UISearchBarDelegate {
     }
     
     
-    @objc private func didPressReturn() {
-        guard let q = searchBar.text?.trimmingCharacters(in: .whitespacesAndNewlines),
-              !q.isEmpty else { return }
-        doneSearch(q)
-    }
+
     
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let selected = books[indexPath.item]
         let vc = DetailViewController(book: selected)
         vc.modalPresentationStyle = .pageSheet
+        
         
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.medium(), .large()]
@@ -263,11 +257,11 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         switch visibleSections[indexPath.section] {
         case .recent:
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: RecentCell.identifier, for: indexPath) as? RecentCell else {
-                    return UICollectionViewCell()
-                }
-                let urlString = recentThumbnails[indexPath.item]
-                cell.setImageURL(urlString) 
-                return cell
+                return UICollectionViewCell()
+            }
+            let urlString = recentThumbnails[indexPath.item]
+            cell.setImageURL(urlString)
+            return cell
             
         case .results:
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ResultsCell.identifier, for: indexPath) as! ResultsCell
@@ -296,12 +290,12 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
         let header = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: HeaderView.identifier, for: indexPath) as! HeaderView
         
         switch visibleSections[indexPath.section] {
-            case .recent:
-                header.configure(titleText: "최근 본 책", symbolName: "text.book.closed.fill")
-            case .results:
-                header.configure(titleText: "검색 결과", symbolName: "archivebox.fill")
-            }
-            return header
+        case .recent:
+            header.configure(titleText: "최근 본 책", symbolName: "text.book.closed.fill")
+        case .results:
+            header.configure(titleText: "검색 결과", symbolName: "archivebox.fill")
+        }
+        return header
     }
     
     
@@ -310,3 +304,4 @@ extension SearchViewController: UICollectionViewDelegate, UICollectionViewDataSo
 extension Book {
     var thumbnailURL: String? { thumbnail }
 }
+

@@ -80,7 +80,7 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         }
         
         xButton.addTarget(self, action: #selector(closeTapped), for: .touchUpInside)
-        
+
     }
     
     
@@ -271,9 +271,13 @@ final class DetailViewController: UIViewController, UISheetPresentationControlle
         CoreDataManager.shared.createData(title: title, author: author, price: price)
         
         
-        delegate?.didTapAddBook(book)
-        dismiss(animated: true)
+        // delegate?.didTapAddBook(book)
+        dismiss(animated: true) { [weak self] in
+            guard let self else { return }
+            self.delegate?.didTapAddBook(self.book)
+
+          
+        }
+        
     }
-    
-    
 }
